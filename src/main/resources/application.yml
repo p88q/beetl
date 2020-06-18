@@ -1,0 +1,13 @@
+server:
+  port: 8080
+beetl:
+  ## 后缀默认是btl
+  enabled: true
+  ## 默认后缀是btl
+  suffix: html
+
+spring:
+  security:
+    user:
+      name: user
+      password: password
