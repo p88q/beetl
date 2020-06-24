@@ -9,6 +9,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 /**
@@ -32,28 +33,39 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         // http.csrf().disable(); // 注释就是使用csrf功能
         http.headers().frameOptions().disable(); // 解决form标签引入问题
+        // http.anonymous().disable();
         http.authorizeRequests()
-                .antMatchers("/login/**", "/initUserData") // 不拦截登录相关方法
+                // 不拦截登录相关方法
+                .antMatchers("/login/**", "/initUserData")
                 .permitAll()
-                .antMatchers("/user").hasRole("ADMIN") //user接口只有admin角色可以访问
+                //user接口只有admin角色可以访问
+                .antMatchers("/user").hasRole("ADMIN")
                 .anyRequest()
-                .authenticated() // 任何尚未匹配的url只需要验证用户即可访问
+                // 任何尚未匹配的url只需要验证用户即可访问
+                .authenticated()
                 .anyRequest()
+                // 根据账号权限访问
                 .access("@rbacPermission.hasPermission(request, authentication)")
                 .and()
                 .formLogin()
                 .loginPage("/")
-                .loginPage("/login") // 登录请求页
-                .loginProcessingUrl("/login") // 登录post请求路径
-                .usernameParameter("username") // 登录用户名
-                .passwordParameter("password") // 登录密码
+                // 登录请求页
+                .loginPage("/login")
+                // 登录post请求路径
+                .loginProcessingUrl("/login")
+                // 登录用户名
+                .usernameParameter("username")
+                // 登录密码
+                .passwordParameter("password")
                 .defaultSuccessUrl("/main")
                 .and()
                 .exceptionHandling()
-                .accessDeniedHandler(customAccessDeniedHandler) // 无权限处理器
+                // 无权限处理器
+                .accessDeniedHandler(customAccessDeniedHandler)
                 .and()
                 .logout()
-                .logoutSuccessUrl("/login?logout"); // 退出登录成功URL
+                // 退出登录成功URL
+                .logoutSuccessUrl("/login?logout");
     }
 
     /**
